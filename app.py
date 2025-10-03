@@ -1,17 +1,27 @@
+import os
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from openai_client import OpenAIClient
 from utils import upload_pdfs_and_create_vector_store
+from dotenv import load_dotenv
 
+# Initialize OpenAI client and vector store
+load_dotenv()
 client = OpenAIClient().get_client()
+auth_token = os.get("RENDER_OPEN_AI_AUTH_TOKEN", "changeme")
 vector_store_details = upload_pdfs_and_create_vector_store()
 app = FastAPI()
 
 class Query(BaseModel):
   question: str
+  auth_token: str
 
 @app.post("/ask")
 def ask_openai(query: Query):
+  if auth_token == "changeme" or query.auth_token != auth_token:
+    return {"error": "Unauthorized"}, 401
+  
   print(f"Vector store id: {vector_store_details['id']}")
   print(f"Received question: {query.question}")
   response = client.responses.create(
@@ -24,8 +34,6 @@ def ask_openai(query: Query):
     }],
     # max_output_tokens=1000,
   )
-
-  print("Response received:", response)
 
   # Extract annotations / filenames from the response in a defensive way.
   # Different SDK objects (like ResponseFileSearchToolCall) may expose
