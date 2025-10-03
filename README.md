@@ -51,3 +51,44 @@ How many paid holidays are observed each year in the U.S.?
 What is the paid parental leave policy for new parents?
 
 What resource provides up to 10 free counseling sessions per person per year?
+
+## Run the simple web UI
+
+A minimal single-page UI is included at `static/index.html` so you can ask questions from a browser.
+
+1. Create and activate a virtual environment (zsh):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+```
+
+2. Install the package (this will install dependencies from `pyproject.toml`):
+
+```bash
+pip install -e .
+```
+
+3. Set required environment variables in your shell (replace with your real tokens):
+
+```bash
+export OPENAI_API_KEY="sk-..."
+export RENDER_OPEN_AI_AUTH_TOKEN="your-ui-token"
+```
+
+4. Run the FastAPI app with uvicorn:
+
+```bash
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
+```
+
+5. Open the UI in your browser:
+
+http://127.0.0.1:8000/
+
+Enter your question and the auth token you set in `RENDER_OPEN_AI_AUTH_TOKEN` and click Ask.
+
+Notes:
+- The app expects a valid OpenAI key in `OPENAI_API_KEY` and a UI auth token in `RENDER_OPEN_AI_AUTH_TOKEN`.
+- If `RENDER_OPEN_AI_AUTH_TOKEN` is left as the default `changeme`, the server will reject requests; set it before running.
