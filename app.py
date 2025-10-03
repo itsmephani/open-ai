@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # Initialize OpenAI client and vector store
 load_dotenv()
 client = OpenAIClient().get_client()
-auth_token = os.get("RENDER_OPEN_AI_AUTH_TOKEN", "changeme")
+auth_token = os.getenv("RENDER_OPEN_AI_AUTH_TOKEN") or "changeme"
 vector_store_details = upload_pdfs_and_create_vector_store()
 app = FastAPI()
 
