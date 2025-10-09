@@ -77,7 +77,7 @@ def chat(query: Query):
           "call_id": item.call_id,
           "output": json.dumps(news)
         })
-        response = get_responses(input_list)
+        response = get_responses(input_list, "Response with the results from the latest_ai_news_report tool. Be concise and specific.")
       if item.name == "search_web":
         news = search_web(**json.loads(item.arguments))
         tools_used.append(item.name)
