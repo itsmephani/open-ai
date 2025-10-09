@@ -52,6 +52,7 @@ tools = [
     "name": "search_web",
     "description": """
       Use this to search web and get latest information.
+      INSTRUCTION: DON'T USE FOR AI RELATED NEWS.
     """,
     "parameters": {
         "type": "object",
