@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from langchain_openai import OpenAI
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
@@ -19,7 +18,6 @@ class FaissStore:
       text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
       docs = text_splitter.split_documents(documents)
       print(f"Split into {len(docs)} chunks of text.")
-      print(docs[0])
 
       embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
       try:

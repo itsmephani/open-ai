@@ -2,7 +2,7 @@ import json
 import os
 import uuid
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -14,17 +14,33 @@ from tool import tools, get_current_weather, get_latest_ai_news_report, search_w
 load_dotenv()
 client = OpenAIClient().get_client()
 auth_token = os.getenv("RENDER_OPEN_AI_AUTH_TOKEN") or "changeme"
+input_store = {}
+app = FastAPI()
+
+# Serve a very small frontend from ./static
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 class Query(BaseModel):
   question: str
   auth_token: str
   session_id: str = None
 
-input_store = {}
 
-def chatbot(query: Query):
+class ResetRequest(BaseModel):
+  auth_token: str
+
+@app.get("/")
+def root():
+  # Serve the single-page UI
+  return FileResponse("static/index.html")
+
+@app.post("/chat")
+def chat(query: Query):
   if auth_token == "changeme" or query.auth_token != auth_token:
-    return {"error": "Unauthorized"}, 401
+    raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication token"
+            )
   
   sources = list([])
   tools_used = list([])
@@ -55,7 +71,7 @@ def chatbot(query: Query):
       if item.name == "latest_ai_news_report":
         news = get_latest_ai_news_report(**json.loads(item.arguments))
         tools_used.append(item.name)
-        sources += [ f"{res["metadata"].get("source")}#{res["metadata"].get("page_label")}" for res in news.get("results", []) if res["metadata"].get("source")]
+        sources += [ f"{res['metadata'].get('source')}#{res['metadata'].get('page_label')}" for res in news.get('results', []) if res['metadata'].get('source')]
         input_list.append({
           "type": "function_call_output",
           "call_id": item.call_id,
@@ -81,6 +97,8 @@ def chatbot(query: Query):
   }
 
 def get_responses(input_list, instructions="You are a helpful AI assistant. Use the provided tools when needed to answer the question."):
+  print(f"Input store: {input_list}")
+  print(f"Input list: {len(input_list)}")
   return client.responses.create(
     instructions= instructions,
     input=input_list,
@@ -91,14 +109,13 @@ def get_responses(input_list, instructions="You are a helpful AI assistant. Use 
     # max_output_tokens=1000,
   )
 
-if __name__ == "__main__":
-  while True:
-    question = input("Enter your question: ")
-    if question.lower() in ["exit", "quit"]:
-      break
-    
-    session_id = uuid.uuid4().hex
-    response = chatbot(Query(question=question, auth_token=auth_token, session_id=session_id))
-    print(f"Response{':'*32}")
-    print(response)
-    print("="*40)
+@app.post("/reset")
+def reset(req: ResetRequest):
+  if auth_token == "changeme" or req.auth_token != auth_token:
+    raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication token"
+            )
+
+  input_store.clear()
+  return {"status": "reset"}
