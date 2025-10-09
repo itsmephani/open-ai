@@ -9,7 +9,8 @@ from pydantic import BaseModel
 from openai_client import OpenAIClient
 from dotenv import load_dotenv
 from prompts import AI_NEWS_OUTPUT_FORMAT, INSTRUCTIONS, WEATHER_OUTPUT_FORMAT
-from tool import tools, get_current_weather, get_latest_ai_news_report, search_web
+from tool import tools, get_current_weather, get_latest_ai_news_report, search_web, output_formats
+from functools import reduce
 
 # Initialize OpenAI client and vector store
 load_dotenv()
@@ -52,8 +53,8 @@ def chat(query: Query):
 
   print(f"Received question: {query.question}")
 
-  
-  response = get_responses(input_list)
+  additional_instructions = reduce(lambda x, y: x + "\n" + y, output_formats.values())
+  response = get_responses(input_list, additional_instructions=additional_instructions)
   print(f"Response: {response}")
   input_list += response.output
 
@@ -86,13 +87,6 @@ def chat(query: Query):
       if item.name == "search_web":
         news = search_web(**json.loads(item.arguments))
         tools_used.append(item.name)
-        
-        # input_list.append({
-        #   "type": "function_call_output",
-        #   "call_id": item.call_id,
-        #   "output": json.dumps(news)
-        # })
-        # response = get_responses(input_list)
         response = news['response']
 
   return {

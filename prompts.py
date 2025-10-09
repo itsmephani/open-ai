@@ -15,12 +15,11 @@ WEATHER_OUTPUT_FORMAT = """
     Humidity:
     Wind Speed & Direction:
     Weather Condition:
-
-    Format the response in Markdown for readability.
   """
 
 STOCK_OUTPUT_FORMAT = """
     Please provide the latest stock price information in the following format:
+    If not provided use NSE as default exchange.
     Company Name:
     Ticker Symbol:
     Exchange:
@@ -29,15 +28,6 @@ STOCK_OUTPUT_FORMAT = """
     Price Change (Absolute & %):
     Opening Price:
     Day's High / Low:
-    Previous Close:
-    Volume Traded:
-    Market Cap:
-    52-Week High / Low:
-    P/E Ratio:
-    Dividend Yield:
-    Analyst Rating (if available):
-
-    Format the response in Markdown for readability.
   """
 
 AI_NEWS_OUTPUT_FORMAT = """
@@ -54,8 +44,6 @@ AI_NEWS_OUTPUT_FORMAT = """
     Impact on Industry:
     Relevant Companies / Technologies:
     Link to Full Article:
-
-    Format the response in Markdown for readability.
   """
 
 TRAVEL_OUTPUT_FORMAT = """
@@ -77,8 +65,6 @@ TRAVEL_OUTPUT_FORMAT = """
     Budget Estimate (Daily):
     Recommended Duration of Stay:
     Link to Travel Guide or Blog:
-
-    Format the response in Markdown for readability.
   """
 
 ENTERTAINMENT_MEDIA_OUTPUT_FORMAT = """
@@ -94,8 +80,6 @@ ENTERTAINMENT_MEDIA_OUTPUT_FORMAT = """
     Trending Status:
     Fun Fact or Behind-the-Scenes Info:
     Link to Trailer / Article / Official Page:
-    
-    Format the response in Markdown for readability.
   """
 
 HEALTH_AND_WELLNESS_OUTPUT_FORMAT = """
@@ -113,6 +97,24 @@ HEALTH_AND_WELLNESS_OUTPUT_FORMAT = """
     Target Audience:
     Expert Insights (if available):
     Link to Full Article:
+  """
 
-    Format the response in Markdown for readability.
+NEWS_OUTPUT_FORMAT = """
+    Please provide the news in the following structured format:
+    Headline:
+    Date:
+    Source:
+    Summary:
+
+    [Bullet point 1]
+    [Bullet point 2]
+    [Bullet point 3]
+    Impact on Industry:
+    Link to Full Article:
+  """
+
+GENERAL_OUTPUT_FORMAT = """
+    Please provide the information in a clear and concise manner.
+    Use bullet points or numbered lists where appropriate.
+    Ensure the response is well-structured and easy to read.
   """

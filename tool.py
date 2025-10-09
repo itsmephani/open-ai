@@ -5,6 +5,7 @@ import json
 from dotenv import load_dotenv
 from faiss_store import FaissStore
 from file_search_tool.openai_client import OpenAIClient
+from prompts import ENTERTAINMENT_MEDIA_OUTPUT_FORMAT, GENERAL_OUTPUT_FORMAT, HEALTH_AND_WELLNESS_OUTPUT_FORMAT, NEWS_OUTPUT_FORMAT, STOCK_OUTPUT_FORMAT, TRAVEL_OUTPUT_FORMAT
 
 load_dotenv()
 store = FaissStore()
@@ -61,13 +62,24 @@ tools = [
               "type": "string",
               "description": "Question related to latest AI news and reports.",
             },
+            "category": {
+              "type": "string",
+              "description": "Categorize the query in to one of the following: stock, travel, health_and_wellness, entertainment_or_media, news.",
+            },
         },
-        "required": ["query"],
+        "required": ["query", "category"],
         "additionalProperties": False,
     },
     "strict": True, 
   }
 ]
+output_formats = {
+  "news": NEWS_OUTPUT_FORMAT,
+  "stock": STOCK_OUTPUT_FORMAT,
+  "travel": TRAVEL_OUTPUT_FORMAT,
+  "health_and_wellness": HEALTH_AND_WELLNESS_OUTPUT_FORMAT,
+  "entertainment_or_media": ENTERTAINMENT_MEDIA_OUTPUT_FORMAT,
+}
 
 def get_current_weather(city: str) -> dict:
   """Fetch current weather for a city using the free wttr.in JSON API.
@@ -128,13 +140,16 @@ def get_latest_ai_news_report(query: str):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-def search_web(query: str):
+def search_web(query: str, category: str = ""):
     """Fetch latest information from web."""
     try:
+      instructions = output_formats.get(category, GENERAL_OUTPUT_FORMAT)
+      print(f"Using instructions: {instructions}")
       response = client.responses.create(
         model="gpt-5-nano",
         tools=[{"type": "web_search"}],
-        input=query
+        input=query,
+        instructions=instructions
       )
       
       return {
