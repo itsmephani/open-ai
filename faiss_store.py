@@ -31,4 +31,4 @@ class FaissStore:
     return cls._instance
 
   def search_index(self, query: str):
-    return self.library.similarity_search_with_score(query, k=2)
+    return self.library.similarity_search_with_score(query, k=10)
