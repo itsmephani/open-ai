@@ -73,7 +73,6 @@ def chatbot(query: Query):
         })
         response = get_responses(input_list)
 
-
   return {
     "answer": response.output_text,
     "sources": sources,
@@ -99,4 +98,7 @@ if __name__ == "__main__":
       break
     
     session_id = uuid.uuid4().hex
-    chatbot(Query(question=question, auth_token=auth_token, session_id=session_id))
+    response = chatbot(Query(question=question, auth_token=auth_token, session_id=session_id))
+    print(f"Response{':'*32}")
+    print(response)
+    print("="*40)

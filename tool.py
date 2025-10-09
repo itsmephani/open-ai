@@ -1,9 +1,14 @@
 import urllib.request
 import urllib.parse
 import json
-from faiss_store import FaissStore
 
+from dotenv import load_dotenv
+from faiss_store import FaissStore
+from file_search_tool.openai_client import OpenAIClient
+
+load_dotenv()
 store = FaissStore()
+client = OpenAIClient().get_client()
 tools = [
   {
     "type": "function",
@@ -125,11 +130,15 @@ def get_latest_ai_news_report(query: str):
 def search_web(query: str):
     """Fetch latest information from web."""
     try:
-      # Placeholder for web search implementation
-      # In a real implementation, this would call a web search API
+      response = client.responses.create(
+        model="gpt-5-nano",
+        tools=[{"type": "web_search"}],
+        input=query
+      )
+      
       return {
         "success": True,
-        "results": []
+        "results": response.output_text
       }
     except Exception as e:
         return {"success": False, "error": str(e)}
