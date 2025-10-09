@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionEl.value = id
         localStorage.setItem('session_id', id)
       }
+
+      appendMessage('==== New Session Started ====', 'user');
     })
   }
 
