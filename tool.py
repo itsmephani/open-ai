@@ -1,6 +1,9 @@
 import urllib.request
 import urllib.parse
 import json
+from faiss_store import FaissStore
+
+store = FaissStore()
 
 def get_current_weather(city: str) -> dict:
   """Fetch current weather for a city using the free wttr.in JSON API.
@@ -41,3 +44,22 @@ def get_current_weather(city: str) -> dict:
     }
   except Exception as e:
       return {"success": False, "error": str(e)}
+  
+def get_latest_ai_news_report(query: str):
+    """Fetch latest AI news and reports from the FAISS index."""
+    try:
+      results = store.search_index(query)
+      formatted_results = []
+      for doc, score in results:
+        formatted_results.append({
+          "page_content": doc.page_content,
+          "metadata": doc.metadata,
+          "score": score
+        })
+      
+      return {
+        "success": True,
+        "results": formatted_results
+      }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
