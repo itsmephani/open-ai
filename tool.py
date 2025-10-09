@@ -4,6 +4,64 @@ import json
 from faiss_store import FaissStore
 
 store = FaissStore()
+tools = [
+  {
+    "type": "function",
+    "name": "get_current_weather",
+    "description": "Get weather for the provided city.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "city": {
+              "type": "string",
+              "description": "City name e.g. Hyderabad, India",
+            },
+        },
+        "required": ["city"],
+        "additionalProperties": False,
+    },
+    "strict": True,
+  },
+  {
+    "type": "function",
+    "name": "latest_ai_news_report",
+    "description": """
+      Get latest questions, news, trends and reports related to AI, Artificial Intelligence, ML, Machine Learning.
+      Use this to answer questions related to latest AI news and reports.
+    """,
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+              "type": "string",
+              "description": "Question related to latest AI news and reports.",
+            },
+        },
+        "required": ["query"],
+        "additionalProperties": False,
+    },
+    "strict": True, 
+  },
+  {
+    "type": "function",
+    "name": "search_web",
+    "description": """
+      Use this to search web and get latest information.
+    """,
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+              "type": "string",
+              "description": "Question related to latest AI news and reports.",
+            },
+        },
+        "required": ["query"],
+        "additionalProperties": False,
+    },
+    "strict": True, 
+  }
+]
 
 def get_current_weather(city: str) -> dict:
   """Fetch current weather for a city using the free wttr.in JSON API.
@@ -54,12 +112,24 @@ def get_latest_ai_news_report(query: str):
         formatted_results.append({
           "page_content": doc.page_content,
           "metadata": doc.metadata,
-          "score": score
+          "score": score.item()
         })
       
       return {
         "success": True,
         "results": formatted_results
+      }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def search_web(query: str):
+    """Fetch latest information from web."""
+    try:
+      # Placeholder for web search implementation
+      # In a real implementation, this would call a web search API
+      return {
+        "success": True,
+        "results": []
       }
     except Exception as e:
         return {"success": False, "error": str(e)}

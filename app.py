@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai_client import OpenAIClient
 from dotenv import load_dotenv
-from tool import get_current_weather, get_latest_ai_news_report
+from tool import tools, get_current_weather, get_latest_ai_news_report, search_web
 
 # Initialize OpenAI client and vector store
 load_dotenv()
@@ -22,47 +22,12 @@ class Query(BaseModel):
 
 input_store = {}
 
-tools = [
-  {
-    "type": "function",
-    "name": "get_current_weather",
-    "description": "Get weather for the provided city.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "city": {
-              "type": "string",
-              "description": "City name e.g. Hyderabad, India",
-            },
-        },
-        "required": ["city"],
-        "additionalProperties": False,
-    },
-    "strict": True,
-  },
-  {
-    "type": "function",
-    "name": "latest_ai_news_report",
-    "description": "Get latest new and report to AI, Artificial Intelligence, ML, Machine Learning.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "query": {
-              "type": "string",
-              "description": "Question related to latest AI news and reports.",
-            },
-        },
-        "required": ["query"],
-        "additionalProperties": False,
-    },
-    "strict": True, 
-  }
-]
-
 def chatbot(query: Query):
   if auth_token == "changeme" or query.auth_token != auth_token:
     return {"error": "Unauthorized"}, 401
   
+  sources = list([])
+  tools_used = list([])
   session_id = query.session_id or uuid.uuid4().hex
   input_store.setdefault(session_id, [])
   input_list = input_store.get(session_id, [])
@@ -76,35 +41,43 @@ def chatbot(query: Query):
   input_list += response.output
 
   for item in response.output:
-    # input_list.append({"role": item.role, "content": item.content})
     if item.type == "function_call":
       print(f"Function call: {item.name} with arguments {item.arguments}")
       if item.name == "get_current_weather":
         weather_report = get_current_weather(**json.loads(item.arguments))
-        
-        # 4. Provide function call results to the model
+        tools_used.append(item.name)
         input_list.append({
           "type": "function_call_output",
           "call_id": item.call_id,
           "output": json.dumps(weather_report)
         })
-        response = get_responses(input_list, "Respond only with weather details")
+        response = get_responses(input_list)
       if item.name == "latest_ai_news_report":
         news = get_latest_ai_news_report(**json.loads(item.arguments))
-        
-        # 4. Provide function call results to the model
+        tools_used.append(item.name)
+        sources += [ f"{res["metadata"].get("source")}#{res["metadata"].get("page_label")}" for res in news.get("results", []) if res["metadata"].get("source")]
         input_list.append({
-            "type": "function_call_output",
-            "call_id": item.call_id,
-            "output": json.dumps(news)
+          "type": "function_call_output",
+          "call_id": item.call_id,
+          "output": json.dumps(news)
+        })
+        response = get_responses(input_list)
+      if item.name == "search_web":
+        news = search_web(**json.loads(item.arguments))
+        tools_used.append(item.name)
+        
+        input_list.append({
+          "type": "function_call_output",
+          "call_id": item.call_id,
+          "output": json.dumps(news)
         })
         response = get_responses(input_list)
 
 
   return {
     "answer": response.output_text,
-    "files_used": list([]),
-    "file_search_text": "",
+    "sources": sources,
+    "tools_used": tools_used,
     "session_id": session_id,
   }
 
