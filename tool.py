@@ -5,6 +5,7 @@ import json
 from dotenv import load_dotenv
 from faiss_store import FaissStore
 from file_search_tool.openai_client import OpenAIClient
+from prompts import INSTRUCTIONS
 
 load_dotenv()
 store = FaissStore()
@@ -139,6 +140,7 @@ def search_web(query: str):
       
       return {
         "success": True,
+        "response": response,
         "results": response.output_text
       }
     except Exception as e:

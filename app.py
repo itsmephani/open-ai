@@ -82,12 +82,13 @@ def chat(query: Query):
         news = search_web(**json.loads(item.arguments))
         tools_used.append(item.name)
         
-        input_list.append({
-          "type": "function_call_output",
-          "call_id": item.call_id,
-          "output": json.dumps(news)
-        })
-        response = get_responses(input_list)
+        # input_list.append({
+        #   "type": "function_call_output",
+        #   "call_id": item.call_id,
+        #   "output": json.dumps(news)
+        # })
+        # response = get_responses(input_list)
+        response = news['response']
 
   return {
     "answer": response.output_text,
@@ -96,11 +97,9 @@ def chat(query: Query):
     "session_id": session_id,
   }
 
-def get_responses(input_list, instructions="You are a helpful AI assistant. Use the provided tools when needed to answer the question."):
-  print(f"Input store: {input_list}")
-  print(f"Input list: {len(input_list)}")
+def get_responses(input_list, instructions=None, additional_instructions=None):
   return client.responses.create(
-    instructions= instructions,
+    instructions=(instructions or INSTRUCTIONS, additional_instructions),
     input=input_list,
     model="gpt-5-nano",
     tools=tools,
