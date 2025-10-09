@@ -1,9 +1,9 @@
 INSTRUCTIONS = """
-  You are a helpful AI assistant. Use the provided tools when needed to answer the question.
-  INSTRUCTION:
-  If you need search_web tool for additional information. Categorize the area in to following:
-  stock, ai_news, travel, health_and_wellness, entertainment_or_media. 
-"""
+    You are a helpful AI assistant. Use the provided tools when needed to answer the question.
+    INSTRUCTION:
+    If you need search_web tool for additional information. Categorize the area in to following:
+    stock, travel, health_and_wellness, entertainment_or_media. 
+  """
 
 WEATHER_OUTPUT_FORMAT = """
     Please provide the current weather in Hyderabad in the following structured format:

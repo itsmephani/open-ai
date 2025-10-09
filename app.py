@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai_client import OpenAIClient
 from dotenv import load_dotenv
-from prompts import INSTRUCTIONS
+from prompts import AI_NEWS_OUTPUT_FORMAT, INSTRUCTIONS, WEATHER_OUTPUT_FORMAT
 from tool import tools, get_current_weather, get_latest_ai_news_report, search_web
 
 # Initialize OpenAI client and vector store
@@ -68,7 +68,9 @@ def chat(query: Query):
           "call_id": item.call_id,
           "output": json.dumps(weather_report)
         })
-        response = get_responses(input_list)
+        response = get_responses(input_list,
+          "Respond with the results from the get_current_weather tool.",
+          WEATHER_OUTPUT_FORMAT)
       if item.name == "latest_ai_news_report":
         news = get_latest_ai_news_report(**json.loads(item.arguments))
         tools_used.append(item.name)
@@ -78,7 +80,9 @@ def chat(query: Query):
           "call_id": item.call_id,
           "output": json.dumps(news)
         })
-        response = get_responses(input_list, "Response with the results from the latest_ai_news_report tool. Be concise and specific.")
+        response = get_responses(input_list, 
+          "Respond with the results from the latest_ai_news_report tool.",
+          AI_NEWS_OUTPUT_FORMAT)
       if item.name == "search_web":
         news = search_web(**json.loads(item.arguments))
         tools_used.append(item.name)
@@ -98,9 +102,9 @@ def chat(query: Query):
     "session_id": session_id,
   }
 
-def get_responses(input_list, instructions=None, additional_instructions=None):
+def get_responses(input_list, instructions=None, additional_instructions=""):
   return client.responses.create(
-    instructions=(instructions or INSTRUCTIONS, additional_instructions),
+    instructions=f"{instructions or INSTRUCTIONS} \n {additional_instructions})",
     input=input_list,
     model="gpt-5-nano",
     tools=tools,
