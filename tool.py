@@ -5,7 +5,6 @@ import json
 from dotenv import load_dotenv
 from faiss_store import FaissStore
 from file_search_tool.openai_client import OpenAIClient
-from prompts import INSTRUCTIONS
 
 load_dotenv()
 store = FaissStore()

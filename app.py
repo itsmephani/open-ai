@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from openai_client import OpenAIClient
 from dotenv import load_dotenv
+from prompts import INSTRUCTIONS
 from tool import tools, get_current_weather, get_latest_ai_news_report, search_web
 
 # Initialize OpenAI client and vector store
