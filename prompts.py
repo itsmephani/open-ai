@@ -1,8 +1,9 @@
 INSTRUCTIONS = """
     You are a helpful AI assistant. Use the provided tools when needed to answer the question.
+    
     INSTRUCTION:
-    If you need search_web tool for additional information. Categorize the area in to following:
-    stock, travel, health_and_wellness, entertainment_or_media. 
+    **If you need search_web tool for additional information. 
+    You must Categorize the query in to one of the following: stock, travel, health_and_wellness, entertainment_or_media.**. 
   """
 
 WEATHER_OUTPUT_FORMAT = """
